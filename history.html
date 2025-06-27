@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Booking History</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #f0f0f0, #d9faff);
+      margin: 0;
+      padding: 0;
+    }
+
+    nav {
+      background-color: #007bff;
+      padding: 1em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: white;
+      margin-right: 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    nav button {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    nav button:hover {
+      background-color: darkred;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto 20px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input {
+      margin-bottom: 15px;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button[type="submit"] {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    #message {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+      color: red;
+    }
+
+    .table-container {
+      max-width: 90%;
+      margin: 20px auto 50px auto;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    @media (max-width: 600px) {
+      .container, .table-container {
+        width: 95%;
+      }
+
+      nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav button {
+        margin-top: 10px;
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div>
+      <a href="/home.html">Home</a>
+      <a href="/index.html">Book Laundry</a>
+      <a href="/history.html">View History</a>
+    </div>
+    <button onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="container">
+    <h1>View Your Booking History</h1>
+
+    <form id="historyForm">
+      <input type="text" id="phone" name="phone" placeholder="Enter Your Phone Number" required />
+      <button type="submit">Search</button>
+    </form>
+
+    <p id="message"></p>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Service</th>
+        </tr>
+      </thead>
+      <tbody id="historyResults"></tbody>
+    </table>
+  </div>
+
+  <script>
+    document.getElementById("historyForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const phone = document.getElementById("phone").value.trim();
+      const message = document.getElementById("message");
+      const list = document.getElementById("historyResults");
+
+      message.textContent = "";
+      list.innerHTML = "";
+
+      if (!phone.match(/^\d{10}$/)) {
+        message.textContent = "Please enter a valid 10-digit phone number.";
+        return;
+      }
+
+      try {
+        const res = await fetch(`/history/${phone}`);
+        if (!res.ok) {
+          throw new Error("Failed to fetch booking history");
+        }
+
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+          message.textContent = "No bookings found for this phone number.";
+          return;
+        }
+
+        data.forEach(b => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${b.Name || "-"}</td>
+            <td>${b.Phone || "-"}</td>
+            <td>${b.Date || "-"}</td>
+            <td>${b.Time || "-"}</td>
+            <td>${b.Service || "-"}</td>
+          `;
+          list.appendChild(row);
+        });
+      } catch (error) {
+        console.error("Error fetching history:", error);
+        message.textContent = "Error retrieving history. Please try again later.";
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "/login.html";
+    }
+  </script>
+</body>
+</html>

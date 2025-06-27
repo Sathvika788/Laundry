@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin - All Bookings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #f0f0f0, #d9faff);
+      margin: 0;
+      padding: 0;
+    }
+
+    nav {
+      background-color: #007bff;
+      padding: 1em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: white;
+      margin-right: 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    nav button {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    nav button:hover {
+      background-color: darkred;
+    }
+
+    .container {
+      max-width: 95%;
+      margin: 40px auto 20px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    #message {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: red;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    @media (max-width: 600px) {
+      nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav button {
+        margin-top: 10px;
+        align-self: flex-end;
+      }
+
+      .container {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div>
+      <a href="/home.html">Home</a>
+      <a href="/index.html">Book Laundry</a>
+      <a href="/admin.html">Admin</a>
+      <a href="/history.html">View History</a>
+    </div>
+    <button onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="container">
+    <h1>All Bookings (Admin View)</h1>
+    <p id="message"></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Location</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Service</th>
+        </tr>
+      </thead>
+      <tbody id="bookingResults"></tbody>
+    </table>
+  </div>
+
+  <script>
+    window.onload = async function () {
+      const message = document.getElementById("message");
+      const list = document.getElementById("bookingResults");
+
+      message.textContent = "Loading bookings...";
+      list.innerHTML = "";
+
+      try {
+        const res = await fetch("/admin/all-bookings"); // Adjust route if needed
+        if (!res.ok) {
+          throw new Error("Failed to fetch all bookings");
+        }
+
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+          message.textContent = "No bookings available.";
+          return;
+        }
+
+        data.forEach(b => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${b.Name || "-"}</td>
+            <td>${b.Phone || "-"}</td>
+            <td>${b.Location || "-"}</td>
+            <td>${b.Date || "-"}</td>
+            <td>${b.Time || "-"}</td>
+            <td>${b.Service || "-"}</td>
+          `;
+          list.appendChild(row);
+        });
+
+        message.textContent = "";
+      } catch (error) {
+        console.error("Error loading admin bookings:", error);
+        message.textContent = "Error loading bookings. Try again later.";
+      }
+    };
+
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "/login.html";
+    }
+  </script>
+</body>
+</html>

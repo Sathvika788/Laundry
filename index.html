@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Laundry Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #f0f0f0, #d9faff);
+      margin: 0;
+      padding: 0;
+    }
+
+    nav {
+      background-color: #007bff;
+      padding: 1em;
+      display: flex;
+      align-items: center;
+    }
+
+    nav a {
+      color: white;
+      margin-right: 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    nav button {
+      margin-left: auto;
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    nav button:hover {
+      background-color: darkred;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input, select, button[type="submit"] {
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button[type="submit"] {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    #responseMsg {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/home.html">Home</a>
+    <a href="/index.html">Book Laundry</a>
+    <a href="/login.html">Login</a>
+    <a href="/signup.html">Signup</a>
+    <button onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="container">
+    <h1>Laundry Booking Form</h1>
+    <form id="bookingForm">
+      <input type="text" name="name" placeholder="Your Name" required />
+      <input type="text" name="phone" placeholder="Phone Number" required />
+      <input type="date" name="date" required />
+      <input type="time" name="time" required />
+      <select name="service" required>
+        <option value="">Select Service</option>
+        <option value="Washing">Washing</option>
+        <option value="Ironing">Ironing</option>
+        <option value="Dry Cleaning">Dry Cleaning</option>
+      </select>
+      <button type="submit">Book Laundry</button>
+    </form>
+    <p id="responseMsg"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("bookingForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      const res = await fetch("/book", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        body: JSON.stringify(data)
+      });
+
+      const msg = await res.text();
+      document.getElementById("responseMsg").innerText = msg;
+      form.reset();
+    });
+
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "/login.html";
+    }
+  </script>
+</body>
+</html>
