@@ -213,5 +213,5 @@ app.get("/admin/all-bookings", async (req, res) => {
 
 // 🚀 Start Server
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`✅ Server running at http://3.109.24.123:5000/api/data`);
 });
